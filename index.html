@@ -2,60 +2,65 @@
 <html>
 <head>
   <title>Redirecionando...</title>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
 </head>
 <body>
 
-<script>
-// CONFIG FIREBASE (cole o seu aqui)
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, doc, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+// COLE SEUS DADOS REAIS DO FIREBASE AQUI
 const firebaseConfig = {
-  apiKey: "SUA_KEY",
-  authDomain: "SEU_DOMINIO",
-  projectId: "SEU_PROJECT_ID"
+  apiKey: "SUA_KEY_REAL",
+  authDomain: "SEU_DOMINIO_REAL",
+  projectId: "SEU_PROJECT_ID_REAL"
 };
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-// SEUS 16 NÚMEROS
+// NÚMEROS SEM "+"
 const numeros = [
-"+5563992356201",
-"+5563999911003",
-"+5563993018676",
-"+5563981172214",
-"+5563991037444",
-"+5563992506020",
-"+5563981017203",
-"+5563992629395",
-"+5563992062517",
-"+5563981196482",
-"+5563992400353",
-"+5563992165175",
-"+5563981049003",
-"+5563992618445",
-"+556332141331",
-"+5563981057255"
+"5563992356201",
+"5563999911003",
+"5563993018676",
+"5563981172214",
+"5563991037444",
+"5563992506020",
+"5563981017203",
+"5563992629395",
+"5563992062517",
+"5563981196482",
+"5563992400353",
+"5563992165175",
+"5563981049003",
+"5563992618445",
+"556332141331",
+"5563981057255"
 ];
 
 async function redirecionar() {
-  const ref = db.collection("sistema").doc("contador");
+  try {
+    const ref = doc(db, "sistema", "contador");
 
-  await db.runTransaction(async (transaction) => {
-    const doc = await transaction.get(ref);
-    let valor = doc.data().valor;
+    await runTransaction(db, async (transaction) => {
+      const docSnap = await transaction.get(ref);
 
-    valor++;
+      let valor = docSnap.data().valor || 0;
+      valor++;
 
-    transaction.update(ref, { valor: valor });
+      transaction.update(ref, { valor });
 
-    let indice = valor % numeros.length;
+      let indice = valor % numeros.length;
+      let numero = numeros[indice];
 
-    let numero = numeros[indice];
-
-    window.location.href =
-      `https://wa.me/${numero}?text=Olá vim do Instagram`;
-  });
+      window.location.href =
+        `https://wa.me/${numero}?text=Olá%20vim%20do%20Instagram`;
+    });
+  } catch (erro) {
+    console.error("Erro:", erro);
+    alert("Erro ao conectar, tente novamente");
+  }
 }
 
 redirecionar();
