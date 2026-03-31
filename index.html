@@ -50,7 +50,7 @@ async function redirecionar() {
       let valor = docSnap.exists() ? docSnap.data().valor : 0;
       valor++;
 
-      transaction.update(ref, { valor });
+      transaction.set(ref, { valor });
 
       let indice = valor % numeros.length;
       let numero = numeros[indice];
