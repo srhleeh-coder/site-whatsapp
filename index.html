@@ -2,74 +2,67 @@
 <html>
 <head>
   <title>Redirecionando...</title>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
 </head>
 <body>
 
-<// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, doc, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyDJNmDJVWwqe1BUOqqvR43jDBBn2BUB5nk",
-  authDomain: "mix-creditos.firebaseapp.com",
-  projectId: "mix-creditos",
-  storageBucket: "mix-creditos.firebasestorage.app",
-  messagingSenderId: "1064263338370",
-  appId: "1:1064263338370:web:ced1a5e93135d727d7679b",
-  measurementId: "G-SXVS4241EP"
+  apiKey: "COLE_SUA_API_KEY",
+  authDomain: "SEU_DOMINIO.firebaseapp.com",
+  projectId: "SEU_PROJECT_ID",
+  storageBucket: "SEU_PROJECT_ID.appspot.com",
+  messagingSenderId: "XXXX",
+  appId: "XXXX"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+const db = getFirestore(app);
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-
-// SEUS 16 NÚMEROS
 const numeros = [
-"+5563992356201",
-"+5563999911003",
-"+5563993018676",
-"+5563981172214",
-"+5563991037444",
-"+5563992506020",
-"+5563981017203",
-"+5563992629395",
-"+5563992062517",
-"+5563981196482",
-"+5563992400353",
-"+5563992165175",
-"+5563981049003",
-"+5563992618445",
-"+556332141331",
-"+5563981057255"
+"5563992356201",
+"5563999911003",
+"5563993018676",
+"5563981172214",
+"5563991037444",
+"5563992506020",
+"5563981017203",
+"5563992629395",
+"5563992062517",
+"5563981196482",
+"5563992400353",
+"5563992165175",
+"5563981049003",
+"5563992618445",
+"556332141331",
+"5563981057255"
 ];
 
 async function redirecionar() {
-  const ref = db.collection("sistema").doc("contador");
+  try {
+    const ref = doc(db, "sistema", "contador");
 
-  await db.runTransaction(async (transaction) => {
-    const doc = await transaction.get(ref);
-    let valor = doc.data().valor;
+    await runTransaction(db, async (transaction) => {
+      const docSnap = await transaction.get(ref);
 
-    valor++;
+      let valor = docSnap.exists() ? docSnap.data().valor : 0;
+      valor++;
 
-    transaction.update(ref, { valor: valor });
+      transaction.update(ref, { valor });
 
-    let indice = valor % numeros.length;
+      let indice = valor % numeros.length;
+      let numero = numeros[indice];
 
-    let numero = numeros[indice];
+      window.location.href =
+        `https://wa.me/${numero}?text=Olá%20vim%20do%20Instagram`;
+    });
 
-    window.location.href =
-      `https://wa.me/${numero}?text=Olá vim do Instagram`;
-  });
+  } catch (erro) {
+    console.error(erro);
+    document.body.innerHTML = "Erro ao conectar. Verifique Firebase.";
+  }
 }
 
 redirecionar();
